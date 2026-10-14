@@ -2,7 +2,7 @@
 
 import { type AnyFieldApi, useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
-import { api } from "@/lib/query";
+import { queryService } from "@/lib/query/query-service";
 import type { Warga } from "@/lib/shared";
 
 const MAKS_KEPERLUAN = 200;
@@ -20,7 +20,7 @@ function ErrorField({ field }: { field: AnyFieldApi }) {
 
 export default function SuratForm({ warga }: { warga: Array<Pick<Warga, "id" | "nama" | "blok">> }) {
   // TanStack Query: urusan kirim ke server (loading, sukses, gagal).
-  const ajukan = useMutation({ mutationFn: api.ajukanSurat });
+  const ajukan = useMutation({ mutationFn: queryService.ajukanSurat });
 
   // TanStack Form: urusan isian & validasi di browser.
   const form = useForm({

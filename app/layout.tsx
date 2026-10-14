@@ -3,7 +3,7 @@ import "./globals.css";
 import BottomNav from "@/components/bottom-nav";
 import Providers from "@/components/providers";
 import RegisterSW from "@/components/register-sw";
-import { RT } from "@/lib/shared/shared";
+import { RT } from "@/lib/shared";
 
 export const metadata: Metadata = {
   title: `Web App ${RT.nama}`,

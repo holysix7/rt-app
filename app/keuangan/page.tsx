@@ -1,7 +1,8 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import KeuanganView from "@/components/keuangan-view";
-import { bulanIni, getKeuangan } from "@/lib/data";
-import { getQueryClient, queryKeys } from "@/lib/query";
+import { bulanIni, getKeuangan } from "@/lib/data/data";
+import { getQueryClient } from "@/lib/query/query-client";
+import { queryKeys } from "@/lib/query/query-service";
 
 export const dynamic = "force-dynamic";
 

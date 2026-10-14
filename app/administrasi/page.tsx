@@ -1,5 +1,5 @@
 import SuratForm from "@/components/surat-form";
-import { getWarga } from "@/lib/data";
+import { getWarga } from "@/lib/data/data";
 
 export const dynamic = "force-dynamic";
 

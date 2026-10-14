@@ -1,4 +1,4 @@
-import { getKegiatan, getUmkm, tanggalIndo } from "@/lib/data";
+import { getKegiatan, getUmkm, tanggalIndo } from "@/lib/data/data";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +15,9 @@ export default async function Sosial() {
           <div key={u.id} className="baris">
             <div>
               {u.nama}
-              <small>{u.kategori} · {u.pemilik}</small>
+              <small>
+                {u.kategori} · {u.pemilik}
+              </small>
             </div>
             <a
               className="link-wa"
@@ -33,7 +35,10 @@ export default async function Sosial() {
       <div className="kartu">
         {kegiatan.map((k) => (
           <div key={k.id} className="baris">
-            <div>{k.judul}<small>{k.lokasi}</small></div>
+            <div>
+              {k.judul}
+              <small>{k.lokasi}</small>
+            </div>
             <span className="badge">{tanggalIndo(k.tanggal)}</span>
           </div>
         ))}

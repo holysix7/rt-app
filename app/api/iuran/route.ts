@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { catatIuran, DataError, rupiah } from "@/lib/data";
+import { catatIuran, DataError, rupiah } from "@/lib/data/data";
 import { RT } from "@/lib/shared";
 import { kirimWA, NO_BENDAHARA } from "@/lib/whatsapp";
 

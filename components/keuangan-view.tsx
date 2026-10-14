@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import IuranButton from "@/components/iuran-button";
-import { api, queryKeys } from "@/lib/query";
+import { queryKeys, queryService } from "@/lib/query/query-service";
 import { rupiah, tanggalIndo } from "@/lib/shared/shared";
 
 export default function KeuanganView({ bulan }: { bulan: string }) {
@@ -11,7 +11,7 @@ export default function KeuanganView({ bulan }: { bulan: string }) {
   // >1 menit, atau setelah iuran dicatat (invalidate).
   const { data, isPending, isError, error, refetch, isFetching } = useQuery({
     queryKey: queryKeys.keuangan(bulan),
-    queryFn: () => api.keuangan(bulan),
+    queryFn: () => queryService.keuangan(bulan),
   });
 
   if (isPending) {

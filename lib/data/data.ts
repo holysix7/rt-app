@@ -10,7 +10,8 @@ import {
   type Transaksi,
   type Umkm,
   type Warga,
-} from "./shared";
+} from "../shared";
+import { POLA_BULAN, POLA_UUID } from "./data.const";
 
 // Tipe & helper ada di lib/shared.ts (aman untuk client component).
 // Di-export ulang di sini supaya import lama `@/lib/data` tetap jalan di server.
@@ -19,9 +20,6 @@ export * from "@/lib/shared/shared";
 // Kesalahan yang aman ditampilkan ke pengguna (validasi / aturan bisnis).
 // Error lain (mis. database mati) dianggap error server.
 export class DataError extends Error {}
-
-const POLA_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const POLA_BULAN = /^\d{4}-(0[1-9]|1[0-2])$/;
 
 // --- Baca data ---
 

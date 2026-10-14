@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ajukanSurat, DataError } from "@/lib/data";
+import { ajukanSurat, DataError } from "@/lib/data/data";
 import { kirimWA, NO_KETUA_RT } from "@/lib/whatsapp";
 
 // POST /api/surat  { wargaId, keperluan }

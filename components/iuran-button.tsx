@@ -1,8 +1,8 @@
 "use client";
 
 import { useMutation, useMutationState, useQueryClient } from "@tanstack/react-query";
-import { api, queryKeys } from "@/lib/query";
-import { type Keuangan, RT } from "@/lib/shared/shared";
+import { queryKeys, queryService } from "@/lib/query/query-service";
+import { type Keuangan, RT } from "@/lib/shared";
 
 export default function IuranButton({ wargaId, bulan }: { wargaId: string; bulan: string }) {
   const queryClient = useQueryClient();
@@ -11,7 +11,7 @@ export default function IuranButton({ wargaId, bulan }: { wargaId: string; bulan
 
   const catat = useMutation({
     mutationKey,
-    mutationFn: () => api.catatIuran({ wargaId, bulan }),
+    mutationFn: () => queryService.catatIuran({ wargaId, bulan }),
 
     // Optimistic update: langsung tampilkan "Lunas" sebelum server menjawab,
     // supaya terasa cepat walau sinyal lemah.

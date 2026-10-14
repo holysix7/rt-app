@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { bulanIni, DataError, getKeuangan } from "@/lib/data";
+import { bulanIni, DataError, getKeuangan } from "@/lib/data/data";
 
 // GET /api/keuangan?bulan=YYYY-MM
 // Dipakai TanStack Query untuk refetch data halaman Kas & iuran.
