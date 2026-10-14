@@ -1,115 +1,141 @@
-// Data contoh (mock). Ganti dengan database sungguhan, misalnya Supabase,
-// lewat fungsi-fungsi di bawah agar halaman tidak perlu diubah.
+// Lapisan akses data. Halaman & API cukup memanggil fungsi di sini;
+// detail query PostgreSQL tidak bocor ke komponen UI.
+import { db } from "@/lib/db";
+import {
+  type Iuran,
+  type Kegiatan,
+  type Keuangan,
+  RT,
+  type SuratPengantar,
+  type Transaksi,
+  type Umkm,
+  type Warga,
+} from "./shared";
 
-export const RT = {
-  nama: "RT 05",
-  rw: "RW 02",
-  kelurahan: "Kelurahan Contoh",
-  iuranBulanan: 50000,
-};
+// Tipe & helper ada di lib/shared.ts (aman untuk client component).
+// Di-export ulang di sini supaya import lama `@/lib/data` tetap jalan di server.
+export * from "@/lib/shared/shared";
 
-export type Warga = {
-  id: string;
-  nama: string;
-  blok: string;
-  noHp: string;
-  status: "pemilik" | "kontrak";
-  jiwa: number;
-};
+// Kesalahan yang aman ditampilkan ke pengguna (validasi / aturan bisnis).
+// Error lain (mis. database mati) dianggap error server.
+export class DataError extends Error {}
 
-export type Iuran = {
-  wargaId: string;
-  bulan: string; // format YYYY-MM
-  jumlah: number;
-  tanggal: string;
-};
+const POLA_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const POLA_BULAN = /^\d{4}-(0[1-9]|1[0-2])$/;
 
-export type Transaksi = {
-  id: string;
-  tanggal: string;
-  keterangan: string;
-  jenis: "masuk" | "keluar";
-  jumlah: number;
-};
+// --- Baca data ---
 
-export type Umkm = {
-  id: string;
-  nama: string;
-  pemilik: string;
-  kategori: string;
-  noHp: string;
-};
+export async function getWarga() {
+  return db()<Array<Warga>>`
+    SELECT id, nama, blok, no_hp AS "noHp", status, jiwa
+    FROM warga
+    WHERE aktif
+    ORDER BY blok, nama
+  `;
+}
 
-export type Kegiatan = {
-  id: string;
-  judul: string;
-  tanggal: string;
-  lokasi: string;
-};
+export async function getWargaById(id: string) {
+  if (!POLA_UUID.test(id)) return null;
+  const [w] = await db()<Array<Warga>>`
+    SELECT id, nama, blok, no_hp AS "noHp", status, jiwa
+    FROM warga
+    WHERE id = ${id} AND aktif
+  `;
+  return w ?? null;
+}
 
-const warga: Warga[] = [
-  { id: "w1", nama: "Budi Santoso", blok: "A-01", noHp: "6281200000001", status: "pemilik", jiwa: 4 },
-  { id: "w2", nama: "Siti Aminah", blok: "A-02", noHp: "6281200000002", status: "kontrak", jiwa: 3 },
-  { id: "w3", nama: "Agus Pratama", blok: "B-05", noHp: "6281200000003", status: "pemilik", jiwa: 5 },
-  { id: "w4", nama: "Dewi Lestari", blok: "B-07", noHp: "6281200000004", status: "pemilik", jiwa: 2 },
-];
+export async function getIuran(bulan: string) {
+  if (!POLA_BULAN.test(bulan)) throw new DataError("Format bulan harus YYYY-MM");
+  return db()<Array<Iuran>>`
+    SELECT warga_id AS "wargaId",
+           to_char(bulan, 'YYYY-MM') AS bulan,
+           jumlah,
+           to_char(tanggal, 'YYYY-MM-DD') AS tanggal
+    FROM iuran
+    WHERE bulan = ${`${bulan}-01`}::date
+  `;
+}
 
-const iuran: Iuran[] = [
-  { wargaId: "w1", bulan: "2026-10", jumlah: 50000, tanggal: "2026-10-02" },
-  { wargaId: "w3", bulan: "2026-10", jumlah: 50000, tanggal: "2026-10-05" },
-];
+export async function getTransaksi() {
+  return db()<Array<Transaksi>>`
+    SELECT id, to_char(tanggal, 'YYYY-MM-DD') AS tanggal, keterangan, jenis, jumlah
+    FROM kas_transaksi
+    ORDER BY tanggal, created_at
+  `;
+}
 
-const transaksi: Transaksi[] = [
-  { id: "t1", tanggal: "2026-10-01", keterangan: "Saldo awal Oktober", jenis: "masuk", jumlah: 2350000 },
-  { id: "t2", tanggal: "2026-10-02", keterangan: "Iuran A-01", jenis: "masuk", jumlah: 50000 },
-  { id: "t3", tanggal: "2026-10-05", keterangan: "Iuran B-05", jenis: "masuk", jumlah: 50000 },
-  { id: "t4", tanggal: "2026-10-08", keterangan: "Gaji petugas sampah", jenis: "keluar", jumlah: 400000 },
-];
+export async function getUmkm() {
+  return db()<Array<Umkm>>`
+    SELECT id, nama, pemilik, kategori, no_hp AS "noHp"
+    FROM umkm
+    WHERE aktif
+    ORDER BY nama
+  `;
+}
 
-const umkm: Umkm[] = [
-  { id: "u1", nama: "Katering Bu Siti", pemilik: "Siti Aminah", kategori: "Makanan", noHp: "6281200000002" },
-  { id: "u2", nama: "Laundry Kilat", pemilik: "Dewi Lestari", kategori: "Jasa", noHp: "6281200000004" },
-];
+// Kegiatan mulai hari ini ke depan, yang paling dekat di atas.
+export async function getKegiatan() {
+  return db()<Array<Kegiatan>>`
+    SELECT id, judul, to_char(tanggal, 'YYYY-MM-DD') AS tanggal, lokasi
+    FROM kegiatan
+    WHERE tanggal >= current_date
+    ORDER BY tanggal
+  `;
+}
 
-const kegiatan: Kegiatan[] = [
-  { id: "k1", judul: "Kerja bakti bersih selokan", tanggal: "2026-10-18", lokasi: "Seluruh blok" },
-  { id: "k2", judul: "Posyandu balita", tanggal: "2026-10-22", lokasi: "Pos RT" },
-];
+// Semua data halaman Kas & iuran dalam satu objek: dipakai untuk prefetch di
+// server dan oleh GET /api/keuangan saat TanStack Query refetch di browser.
+export async function getKeuangan(bulan: string): Promise<Keuangan> {
+  const [warga, iuran, transaksi] = await Promise.all([getWarga(), getIuran(bulan), getTransaksi()]);
+  return {
+    bulan,
+    warga: warga.map(({ id, nama, blok }) => ({ id, nama, blok })),
+    // Salin ke array biasa (hasil postgres.js punya properti tambahan) agar aman diserialisasi.
+    iuran: iuran.map((i) => ({ ...i })),
+    transaksi: transaksi.map((t) => ({ ...t })),
+  };
+}
 
-// --- Fungsi akses data (ganti isinya dengan query database) ---
-export async function getWarga() { return warga; }
-export async function getIuran(bulan: string) { return iuran.filter((i) => i.bulan === bulan); }
-export async function getTransaksi() { return transaksi; }
-export async function getUmkm() { return umkm; }
-export async function getKegiatan() { return kegiatan; }
+// --- Tulis data ---
 
+// Mencatat iuran + pemasukan kas dalam satu transaksi database.
 export async function catatIuran(wargaId: string, bulan: string) {
-  const w = warga.find((x) => x.id === wargaId);
-  if (!w) throw new Error("Warga tidak ditemukan");
-  if (iuran.some((i) => i.wargaId === wargaId && i.bulan === bulan)) {
-    throw new Error("Iuran bulan ini sudah tercatat");
-  }
-  const tanggal = new Date().toISOString().slice(0, 10);
-  iuran.push({ wargaId, bulan, jumlah: RT.iuranBulanan, tanggal });
-  transaksi.push({
-    id: `t${transaksi.length + 1}`,
-    tanggal,
-    keterangan: `Iuran ${w.blok}`,
-    jenis: "masuk",
-    jumlah: RT.iuranBulanan,
+  if (!POLA_BULAN.test(bulan)) throw new DataError("Format bulan harus YYYY-MM");
+  const w = await getWargaById(wargaId);
+  if (!w) throw new DataError("Warga tidak ditemukan");
+
+  await db().begin(async (tx) => {
+    const [kas] = await tx<Array<{ id: string }>>`
+      INSERT INTO kas_transaksi (keterangan, jenis, jumlah)
+      VALUES (${`Iuran ${w.blok}`}, 'masuk', ${RT.iuranBulanan})
+      RETURNING id
+    `;
+    // Constraint UNIQUE (warga_id, bulan) mencegah dobel bayar, juga saat dua
+    // pengurus menekan tombol bersamaan.
+    const [baru] = await tx<Array<{ id: string }>>`
+      INSERT INTO iuran (warga_id, bulan, jumlah, transaksi_id)
+      VALUES (${w.id}, ${`${bulan}-01`}::date, ${RT.iuranBulanan}, ${kas.id})
+      ON CONFLICT (warga_id, bulan) DO NOTHING
+      RETURNING id
+    `;
+    // Melempar error di sini membatalkan insert kas di atas (rollback).
+    if (!baru) throw new DataError("Iuran bulan ini sudah tercatat");
   });
+
   return w;
 }
 
-// --- Helper ---
-export function rupiah(n: number) {
-  return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(n);
-}
+export async function ajukanSurat(wargaId: string, keperluan: string) {
+  const isi = keperluan.trim();
+  if (!isi) throw new DataError("Keperluan wajib diisi");
+  if (isi.length > 200) throw new DataError("Keperluan maksimal 200 karakter");
+  const w = await getWargaById(wargaId);
+  if (!w) throw new DataError("Warga tidak ditemukan");
 
-export function bulanIni() {
-  return new Date().toISOString().slice(0, 7);
-}
-
-export function tanggalIndo(iso: string) {
-  return new Date(iso).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
+  const [surat] = await db()<Array<SuratPengantar>>`
+    INSERT INTO surat_pengantar (warga_id, keperluan)
+    VALUES (${w.id}, ${isi})
+    RETURNING id, warga_id AS "wargaId", keperluan, status, created_at::text AS dibuat
+  `;
+  return { warga: w, surat };
 }

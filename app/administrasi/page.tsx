@@ -12,7 +12,8 @@ export default async function Administrasi() {
 
       <h2>Ajukan surat pengantar</h2>
       <div className="kartu">
-        <SuratForm warga={warga} />
+        {/* Hanya kirim kolom yang dibutuhkan form ke browser (tanpa no HP) */}
+        <SuratForm warga={warga.map(({ id, nama, blok }) => ({ id, nama, blok }))} />
       </div>
 
       {/* TODO: batasi daftar ini hanya untuk pengurus setelah ada login */}

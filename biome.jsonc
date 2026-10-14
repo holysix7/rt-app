@@ -25,10 +25,37 @@
     "rules": {
       "suspicious": {
         "noConsole": "error",
-        "noLeakedRender": "off"
+        "noLeakedRender": "off",
+        "noEmptyInterface": "off"
       },
       "correctness": {
-        "noUndeclaredDependencies": "error"
+        "noUndeclaredDependencies": "error",
+        "useUniqueElementIds": "off",
+        "noUnusedImports": "error"
+      },
+      "nursery": {
+        "useSortedClasses": "warn"
+      },
+      "style": {
+        "useConsistentCurlyBraces": "error",
+        "useConsistentArrayType": {
+          "level": "error",
+          "options": {
+            "syntax": "generic"
+          }
+        },
+        "useFilenamingConvention": {
+          "level": "error",
+          "options": {
+            "filenameCases": ["kebab-case"]
+          }
+        },
+        "useConsistentTypeDefinitions": {
+          "level": "error",
+          "options": {
+            "style": "interface"
+          }
+        }
       }
     }
   },

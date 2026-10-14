@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { RT } from "@/lib/data";
+import { RT } from "@/lib/shared/shared";
 
 // Next.js otomatis menyajikan file ini di /manifest.webmanifest
 export default function manifest(): MetadataRoute.Manifest {
