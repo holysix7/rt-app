@@ -1,0 +1,10 @@
+pre-commit:
+  jobs:
+    - name: biome
+      glob: "*.{js,ts,jsx,tsx}"
+      run: pnpm exec biome check --write --staged --no-errors-on-unmatched --files-ignore-unknown=true {staged_files}
+      stage_fixed: true
+    - name: prettier-other
+      glob: "*.{md,css,scss,html}"
+      run: pnpm exec prettier --write {staged_files}
+      stage_fixed: true
