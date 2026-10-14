@@ -1,5 +1,5 @@
+import SuratForm from "@/components/surat-form";
 import { getWarga } from "@/lib/data";
-import SuratForm from "@/components/SuratForm";
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +22,9 @@ export default async function Administrasi() {
           <div key={w.id} className="baris">
             <div>
               {w.nama}
-              <small>Blok {w.blok} · {w.jiwa} jiwa</small>
+              <small>
+                Blok {w.blok} · {w.jiwa} jiwa
+              </small>
             </div>
             <span className="badge">{w.status}</span>
           </div>

@@ -1,0 +1,100 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true,
+    "defaultBranch": "development"
+  },
+  "files": {
+    "ignoreUnknown": false,
+    "includes": ["app/**", "components/**", "lib/**"]
+  },
+  "formatter": {
+    "enabled": true,
+    "formatWithErrors": false,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineEnding": "auto",
+    "lineWidth": 120,
+    "attributePosition": "auto",
+    "bracketSameLine": false,
+    "bracketSpacing": true
+  },
+  "linter": {
+    "rules": {
+      "suspicious": {
+        "noConsole": "error",
+        "noLeakedRender": "off"
+      },
+      "correctness": {
+        "noUndeclaredDependencies": "error"
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double",
+      "trailingCommas": "all",
+      "semicolons": "always",
+      "attributePosition": "auto"
+    }
+  },
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "recommended": true
+      }
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["apps/**/app/routes/**/*", "apps/docs/src/**/*", "apps/recruiterpal/**/*"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useFilenamingConvention": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/*.json", "**/*.jsonc"],
+      "assist": { "enabled": false }
+    },
+    {
+      "includes": ["apps/tenants/app/routes/**"],
+      "linter": {
+        "rules": {
+          "style": { "useComponentExportOnlyModules": "off" }
+        }
+      }
+    },
+    // Enforce @/ alias imports for apps/sso/src.
+    // Bans all relative parent imports (../) using gitignore-style patterns (Biome v2.2+).
+    {
+      "includes": ["apps/sso/src/**/*.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                // patterns uses gitignore-style globs (available since Biome v2.2.0).
+                // "../*"  — catches single-segment parents: ../types, ../logger, …
+                // "../**/*" — catches nested parents: ../adapters/saml-adapter, …
+                "patterns": [
+                  {
+                    "group": ["../*", "../**/*"],
+                    "message": "Use @/ alias instead — relative parent imports are banned in apps/sso/src/"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

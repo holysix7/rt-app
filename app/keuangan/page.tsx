@@ -1,5 +1,5 @@
-import { getIuran, getTransaksi, getWarga, bulanIni, rupiah, tanggalIndo } from "@/lib/data";
-import IuranButton from "@/components/IuranButton";
+import IuranButton from "@/components/iuran-button";
+import { bulanIni, getIuran, getTransaksi, getWarga, rupiah, tanggalIndo } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
@@ -15,16 +15,25 @@ export default async function Keuangan() {
       <h1>Kas & iuran</h1>
 
       <div className="grid-2">
-        <div className="kartu stat">Pemasukan<b className="masuk">{rupiah(masuk)}</b></div>
-        <div className="kartu stat">Pengeluaran<b className="keluar">{rupiah(keluar)}</b></div>
+        <div className="kartu stat">
+          Pemasukan<b className="masuk">{rupiah(masuk)}</b>
+        </div>
+        <div className="kartu stat">
+          Pengeluaran<b className="keluar">{rupiah(keluar)}</b>
+        </div>
       </div>
-      <div className="kartu stat">Saldo saat ini<b>{rupiah(masuk - keluar)}</b></div>
+      <div className="kartu stat">
+        Saldo saat ini<b>{rupiah(masuk - keluar)}</b>
+      </div>
 
       <h2>Status iuran {bulan}</h2>
       <div className="kartu">
         {warga.map((w) => (
           <div key={w.id} className="baris">
-            <div>{w.nama}<small>Blok {w.blok}</small></div>
+            <div>
+              {w.nama}
+              <small>Blok {w.blok}</small>
+            </div>
             {sudahBayar.has(w.id) ? (
               <span className="badge">Lunas</span>
             ) : (
@@ -39,9 +48,13 @@ export default async function Keuangan() {
       <div className="kartu">
         {[...transaksi].reverse().map((t) => (
           <div key={t.id} className="baris">
-            <div>{t.keterangan}<small>{tanggalIndo(t.tanggal)}</small></div>
+            <div>
+              {t.keterangan}
+              <small>{tanggalIndo(t.tanggal)}</small>
+            </div>
             <span className={t.jenis}>
-              {t.jenis === "masuk" ? "+" : "−"}{rupiah(t.jumlah)}
+              {t.jenis === "masuk" ? "+" : "−"}
+              {rupiah(t.jumlah)}
             </span>
           </div>
         ))}

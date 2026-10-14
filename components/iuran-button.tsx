@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function IuranButton({ wargaId, bulan }: { wargaId: string; bulan: string }) {
   const [loading, setLoading] = useState(false);
@@ -26,7 +26,7 @@ export default function IuranButton({ wargaId, bulan }: { wargaId: string; bulan
 
   return (
     <div className="aksi">
-      <button className="btn btn-kecil" onClick={bayar} disabled={loading}>
+      <button type="button" className="btn btn-kecil" onClick={bayar} disabled={loading}>
         {loading ? "Menyimpan..." : "Tandai lunas"}
       </button>
       {error && <small className="error">{error}</small>}

@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import BottomNav from "@/components/BottomNav";
-import RegisterSW from "@/components/RegisterSW";
+import BottomNav from "@/components/bottom-nav";
+import RegisterSW from "@/components/register-sw";
 import { RT } from "@/lib/data";
 
 export const metadata: Metadata = {
@@ -24,7 +24,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <header className="topbar">
           <strong>{RT.nama}</strong>
-          <span>{RT.rw} · {RT.kelurahan}</span>
+          <span>
+            {RT.rw} · {RT.kelurahan}
+          </span>
         </header>
         <main className="konten">{children}</main>
         <BottomNav />
